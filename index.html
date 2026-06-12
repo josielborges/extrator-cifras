@@ -36,8 +36,10 @@
             height: 1123px;
             white-space: pre-wrap;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 24px;
+        }
+        .a4-page:not(:last-child) {
             break-after: page;
             page-break-after: always;
         }
@@ -113,18 +115,26 @@
 
                 <!-- Input e Botão de Extração -->
                 <div class="space-y-2">
-                    <label class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Extrair do Cifra Club</label>
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Extrair do Cifra Club</label>
+                        <svg id="loading-spinner" class="animate-spin hidden h-4 w-4 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
                     <div class="flex flex-col gap-2">
                         <input type="url" id="url-input" placeholder="Cole o link da música aqui..." 
                             class="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm text-slate-100 placeholder-slate-500 transition-all">
-                        <button onclick="extractCifra()" id="extract-btn" 
-                            class="w-full bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-2 text-sm">
-                            <span id="extract-text">Extrair Cifra</span>
-                            <svg id="loading-spinner" class="animate-spin hidden h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="extractCifra(false)" id="extract-btn" 
+                                class="bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-1.5 text-xs">
+                                <span>Nova Cifra</span>
+                            </button>
+                            <button onclick="extractCifra(true)" id="append-btn" 
+                                class="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-1.5 text-xs">
+                                <span>Adicionar Cifra</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -180,15 +190,28 @@
                     <h3 class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Exportar Documento</h3>
                     
                     <div class="space-y-1.5">
-                        <label class="text-xs text-slate-300">Título no Cabeçalho do PDF:</label>
-                        <input type="text" id="pdf-title" placeholder="Nome da Música" 
+                        <label class="text-xs text-slate-300">Título da Música:</label>
+                        <input type="text" id="pdf-title" placeholder="Nome da Música" oninput="updatePdfTitle(this.value)"
                             class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm text-slate-100">
                     </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs text-slate-300">Nome do Artista:</label>
+                        <input type="text" id="pdf-artist" placeholder="Nome do Artista" oninput="updatePdfArtist(this.value)"
+                            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm text-slate-100">
+                    </div>
+
 
                     <button onclick="exportToPDF()" 
                         class="w-full bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2 text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         Salvar em PDF
+                    </button>
+
+                    <button onclick="startPresentation()" id="pres-btn"
+                        class="w-full bg-slate-900 hover:bg-slate-950 border border-slate-700 active:scale-[0.98] text-white py-2.5 rounded-lg font-semibold shadow-lg transition-all flex items-center justify-center gap-2 text-sm mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Modo Apresentação (Tela Inteira)
                     </button>
                 </div>
             </div>
@@ -243,6 +266,34 @@
         let currentColumns = 1;
         let currentFontSize = 11;
         let currentMargin = 0.5;
+        let songs = []; // Array de { title, artist, contentHtml }
+        let isPresentationActive = false;
+        let currentPresentationPageIndex = 0;
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function updatePdfTitle(value) {
+            if (songs.length > 0) {
+                songs[0].title = value;
+                renderAllSongs();
+            }
+        }
+
+        function updatePdfArtist(value) {
+            if (songs.length > 0) {
+                songs[0].artist = value;
+                renderAllSongs();
+            }
+        }
+
 
         // Lista de notas musicais ordenada para fins de transposição de acordes
         const scaleNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -267,20 +318,26 @@
             }, 3000);
         }
 
-        async function extractCifra() {
+        async function extractCifra(isAppend = false) {
             const urlInput = document.getElementById('url-input').value.trim();
             if (!urlInput) {
                 showMessage('Por favor, digite ou cole um link válido.', true);
                 return;
             }
 
-            const btnText = document.getElementById('extract-text');
             const spinner = document.getElementById('loading-spinner');
             const extractBtn = document.getElementById('extract-btn');
+            const appendBtn = document.getElementById('append-btn');
             
-            btnText.textContent = 'Buscando...';
             spinner.classList.remove('hidden');
             extractBtn.disabled = true;
+            appendBtn.disabled = true;
+            
+            if (isAppend) {
+                appendBtn.innerText = 'Buscando...';
+            } else {
+                extractBtn.innerText = 'Buscando...';
+            }
 
             try {
                 let htmlText = '';
@@ -331,21 +388,102 @@
                         .replace(/<a [^>]*>/g, '') // Remove links residuais
                         .replace(/<\/a>/g, '');
 
-                    // Tenta resgatar o título da canção pelo cabeçalho
-                    const pageTitle = doc.querySelector('h1') ? doc.querySelector('h1').innerText : 'Nova Cifra';
-                    document.getElementById('pdf-title').value = pageTitle.trim();
+                    // Extrai metadados adicionais (Tom, Afinação, Capotraste) se disponíveis
+                    let metaLines = [];
+                    const tomEl = doc.querySelector('#cifra_tom');
+                    const afiEl = doc.querySelector('#cifra_afi');
+                    const capoEl = doc.querySelector('#cifra_capo');
+                    
+                    if (tomEl) {
+                        const tomText = tomEl.innerText.trim();
+                        if (tomText) {
+                            const cleanTom = tomText.replace(/Tom:\s*/i, '').trim();
+                            metaLines.push(`Tom: <b>${cleanTom}</b>`);
+                        }
+                    }
+                    if (afiEl) {
+                        const afiText = afiEl.innerText.trim();
+                        if (afiText) {
+                            const cleanAfi = afiText.replace(/Afinação:\s*/i, '').trim();
+                            metaLines.push(`Afinação: <b>${cleanAfi}</b>`);
+                        }
+                    }
+                    if (capoEl) {
+                        const capoText = capoEl.innerText.trim();
+                        if (capoText) {
+                            const cleanCapo = capoText.replace(/Capotraste:\s*/i, '').trim();
+                            metaLines.push(`Capotraste: <b>${cleanCapo}</b>`);
+                        }
+                    }
+                    
+                    if (metaLines.length > 0) {
+                        cleanHtml = metaLines.join('\n') + '\n\n' + cleanHtml;
+                    }
 
-                    // Atualiza a visualização das páginas e controles
-                    document.getElementById('empty-state').classList.add('hidden');
-                    document.getElementById('editor-container').classList.remove('hidden');
-                    document.getElementById('pdf-settings-panel').classList.remove('hidden');
+                    // Tenta resgatar o título da canção pelo cabeçalho (evitando o h1 do logo global 'Cifra Club')
+                    let titleEl = doc.querySelector('.t1') || 
+                                  doc.querySelector('h1.t1') || 
+                                  doc.querySelector('.cifra-txt h1') || 
+                                  doc.querySelector('.cifra_cnt h1') ||
+                                  doc.querySelector('.title-header h1') ||
+                                  doc.querySelector('#cifra_cnt h1');
+                                  
+                    if (!titleEl) {
+                        titleEl = Array.from(doc.querySelectorAll('h1')).find(el => {
+                            const text = el.innerText.trim();
+                            const className = (el.className || '').toLowerCase();
+                            const idName = (el.id || '').toLowerCase();
+                            return text !== 'Cifra Club' && 
+                                   !className.includes('logo') && 
+                                   !idName.includes('logo');
+                        });
+                    }
+
+                    const pageTitle = titleEl ? titleEl.innerText.trim() : 'Nova Cifra';
+
+                    // Tenta obter o nome do artista (buscando primeiro próximo ao título)
+                    let artistName = '';
+                    if (titleEl && titleEl.parentElement) {
+                        const artistSibling = titleEl.parentElement.querySelector('h2') || 
+                                              titleEl.parentElement.querySelector('.t3') || 
+                                              titleEl.parentElement.querySelector('.t1-h1-a');
+                        if (artistSibling && artistSibling !== titleEl) {
+                            artistName = artistSibling.innerText.trim();
+                        }
+                    }
+                    
+                    if (!artistName) {
+                        const artistEl = doc.querySelector('.t1-h1-a') || 
+                                         doc.querySelector('h2.t3') || 
+                                         doc.querySelector('.cifra-artist') || 
+                                         doc.querySelector('header h2') || 
+                                         doc.querySelector('h2');
+                        if (artistEl) {
+                            artistName = artistEl.innerText.trim();
+                        }
+                    }
+                    
+                    const newSong = {
+                        title: pageTitle,
+                        artist: artistName,
+                        contentHtml: cleanHtml
+                    };
+
+                    if (isAppend) {
+                        songs.push(newSong);
+                        showMessage('Nova música adicionada com sucesso!');
+                    } else {
+                        songs = [newSong];
+                        showMessage('Cifra extraída com sucesso!');
+                    }
+
+                    // Limpa o campo de URL
+                    document.getElementById('url-input').value = '';
 
                     // Aplica as configurações do editor
                     currentColumns = 2; // Inicia por padrão em 2 colunas para otimizar espaço
                     updateColumnButtons(currentColumns);
-                    applyPagination(cleanHtml);
-
-                    showMessage('Cifra extraída com sucesso!');
+                    renderAllSongs();
                 } else {
                     throw new Error('Pre-tag não localizada. Certifique-se de que é um link válido de cifra.');
                 }
@@ -354,9 +492,11 @@
                 console.error(error);
                 showMessage(error.message || 'Erro ao extrair a cifra. Tente novamente.', true);
             } finally {
-                btnText.textContent = 'Extrair';
+                extractBtn.innerText = 'Nova Cifra';
+                appendBtn.innerText = 'Adicionar Cifra';
                 spinner.classList.add('hidden');
                 extractBtn.disabled = false;
+                appendBtn.disabled = false;
             }
         }
 
@@ -404,32 +544,76 @@
             const pages = container.querySelectorAll('.a4-page');
             if (pages.length === 0) return;
 
-            let fullHtml = Array.from(pages).map(p => p.innerHTML).join('\n');
-            applyPagination(fullHtml);
+            // Agrupa as páginas existentes por data-song-index
+            const songGroups = {};
+            pages.forEach(page => {
+                const songIndex = page.getAttribute('data-song-index') || '0';
+                if (!songGroups[songIndex]) {
+                    songGroups[songIndex] = [];
+                }
+                songGroups[songIndex].push(page);
+            });
+
+            // Reconstrói o array global `songs` com base no conteúdo editado no DOM
+            const updatedSongs = [];
+            Object.keys(songGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(songIndexKey => {
+                const groupPages = songGroups[songIndexKey];
+                let songTitle = '';
+                let songArtist = '';
+
+                // Busca título e artista no cabeçalho da primeira página deste grupo (se houver)
+                const firstPage = groupPages[0];
+                const header = firstPage.querySelector('.cifra-header');
+                if (header) {
+                    const titleEl = header.querySelector('.cifra-title-text');
+                    const artistEl = header.querySelector('.cifra-artist-text');
+                    if (titleEl) songTitle = titleEl.innerText.trim();
+                    if (artistEl) songArtist = artistEl.innerText.trim();
+                }
+
+                // Junta os conteúdos das páginas, removendo o cabeçalho e o botão de exclusão antes de re-paginar
+                let songHtml = '';
+                groupPages.forEach((page, idx) => {
+                    let pageHtml = page.innerHTML;
+                    if (idx === 0) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = pageHtml;
+                        const headerEl = tempDiv.querySelector('.cifra-header');
+                        if (headerEl) {
+                            headerEl.remove();
+                        }
+                        const noPrintEl = tempDiv.querySelector('.no-print');
+                        if (noPrintEl) {
+                            noPrintEl.remove();
+                        }
+                        pageHtml = tempDiv.innerHTML;
+                    }
+                    songHtml += pageHtml + '\n';
+                });
+
+                updatedSongs.push({
+                    title: songTitle,
+                    artist: songArtist,
+                    contentHtml: songHtml
+                });
+            });
+
+            songs = updatedSongs;
+
+            // Sincroniza de volta com os campos da sidebar (usando a primeira música)
+            if (songs.length > 0) {
+                const pdfTitleInput = document.getElementById('pdf-title');
+                if (pdfTitleInput) pdfTitleInput.value = songs[0].title;
+                const pdfArtistInput = document.getElementById('pdf-artist');
+                if (pdfArtistInput) pdfArtistInput.value = songs[0].artist;
+            }
+
+            renderAllSongs();
         }
 
-        function applyPagination(htmlText) {
-            const normalizedHtml = normalizeHtmlNewlines(htmlText);
-            const lines = normalizedHtml.split('\n');
-
-            const paddingPx = currentMargin * 2 * 3.7795;
-            const usableHeight = 1123 - paddingPx;
-            const lineHeight = currentFontSize * 1.35;
-            const linesPerColumn = Math.floor(usableHeight / lineHeight);
-            const linesPerPage = Math.max(1, linesPerColumn * currentColumns);
-
-            const pagesContent = [];
-            for (let i = 0; i < lines.length; i += linesPerPage) {
-                const pageLines = lines.slice(i, i + linesPerPage);
-                pagesContent.push(pageLines.join('\n'));
-            }
-
-            if (pagesContent.length === 0) {
-                pagesContent.push('');
-            }
-
+        function renderAllSongs() {
             const container = document.getElementById('paper-sheet');
-            // Remove as classes, atributos e estilos do layout antigo de página única (caso o navegador tenha cacheado o HTML)
+            // Remove as classes, atributos e estilos do layout antigo
             container.className = 'flex flex-col items-center w-[794px]';
             container.removeAttribute('contenteditable');
             container.removeAttribute('spellcheck');
@@ -442,6 +626,66 @@
             container.style.height = '';
             container.innerHTML = '';
 
+            if (songs.length === 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+                document.getElementById('editor-container').classList.add('hidden');
+                document.getElementById('pdf-settings-panel').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('editor-container').classList.remove('hidden');
+            document.getElementById('pdf-settings-panel').classList.remove('hidden');
+
+            // Preenche os campos de título e artista com a primeira cifra por padrão
+            if (songs.length > 0) {
+                const titleVal = document.getElementById('pdf-title').value.trim();
+                const artistVal = document.getElementById('pdf-artist').value.trim();
+                if (!titleVal) document.getElementById('pdf-title').value = songs[0].title;
+                if (!artistVal) document.getElementById('pdf-artist').value = songs[0].artist;
+            }
+
+            // Pagina e renderiza cada música do cancioneiro
+            songs.forEach((song, songIndex) => {
+                paginateAndRenderSong(song, songIndex);
+            });
+        }
+
+        function paginateAndRenderSong(song, songIndex) {
+            const container = document.getElementById('paper-sheet');
+            const normalizedHtml = normalizeHtmlNewlines(song.contentHtml);
+            const lines = normalizedHtml.split('\n');
+
+            const paddingPx = currentMargin * 2 * 3.7795;
+            const usableHeight = 1123 - paddingPx;
+            const lineHeight = currentFontSize * 1.35;
+            
+            // Calcula a altura ocupada pelo cabeçalho (se houver título ou artista)
+            const headerHeight = (song.title || song.artist) ? 65 : 0;
+
+            const pagesContent = [];
+            let lineIndex = 0;
+
+            // Página 1 (altura utilizável reduzida pelo cabeçalho)
+            const linesPerColumnPage1 = Math.floor((usableHeight - headerHeight) / lineHeight);
+            const linesPerPage1 = Math.max(1, linesPerColumnPage1 * currentColumns);
+            const page1Lines = lines.slice(lineIndex, lineIndex + linesPerPage1);
+            pagesContent.push(page1Lines.join('\n'));
+            lineIndex += linesPerPage1;
+
+            // Páginas seguintes (altura utilizável padrão)
+            const linesPerColumnSubsequent = Math.floor(usableHeight / lineHeight);
+            const linesPerPageSubsequent = Math.max(1, linesPerColumnSubsequent * currentColumns);
+            while (lineIndex < lines.length) {
+                const pageLines = lines.slice(lineIndex, lineIndex + linesPerPageSubsequent);
+                pagesContent.push(pageLines.join('\n'));
+                lineIndex += linesPerPageSubsequent;
+            }
+
+            if (pagesContent.length === 0) {
+                pagesContent.push('');
+            }
+
             pagesContent.forEach((content, index) => {
                 const pageDiv = document.createElement('div');
                 pageDiv.className = `a4-page cifra-content cols-${currentColumns} text-slate-900`;
@@ -450,11 +694,92 @@
                 pageDiv.style.lineHeight = '1.35';
                 pageDiv.contentEditable = 'true';
                 pageDiv.spellcheck = false;
-                pageDiv.innerHTML = content;
+                
+                // Salva atributos de identificação da cifra e página
+                pageDiv.setAttribute('data-song-index', songIndex);
+                pageDiv.setAttribute('data-page-index', index);
+                
+                if (index === 0) {
+                    // Painel de botões de controle flutuante (fora da folha de papel)
+                    let controlsHtml = `<div class="no-print absolute -left-12 top-4 flex flex-col gap-2 z-20" contenteditable="false">`;
+                    
+                    if (songIndex > 0) {
+                        controlsHtml += `<button class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-full shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer" onclick="moveSongUp(${songIndex})" title="Mover música para cima"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>`;
+                    }
+                    
+                    if (songIndex < songs.length - 1) {
+                        controlsHtml += `<button class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-full shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer" onclick="moveSongDown(${songIndex})" title="Mover música para baixo"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>`;
+                    }
+                    
+                    controlsHtml += `<button class="w-8 h-8 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer" onclick="removeSong(${songIndex})" title="Remover esta música"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>`;
+                    
+                    controlsHtml += `</div>`;
+                    
+                    if (song.title || song.artist) {
+                        const headerHtml = `<div class="cifra-header" contenteditable="false" style="column-span:all;-webkit-column-span:all;margin-bottom:12px;border-bottom:1px solid #cbd5e1;padding-bottom:6px;font-family:'Inter',sans-serif;width:100%;"><h1 class="cifra-title-text" contenteditable="true" style="font-size:22px;font-weight:700;color:#1e293b;outline:none;margin:0 0 2px 0;line-height:1.2;display:block;">${escapeHtml(song.title)}</h1><h3 class="cifra-artist-text" contenteditable="true" style="font-size:14px;font-weight:500;color:#64748b;outline:none;margin:0;line-height:1.2;display:block;">${escapeHtml(song.artist)}</h3></div>`;
+                        pageDiv.innerHTML = controlsHtml + headerHtml + content;
+                        
+                        setTimeout(() => {
+                            const titleEl = pageDiv.querySelector('.cifra-title-text');
+                            const artistEl = pageDiv.querySelector('.cifra-artist-text');
+                            if (titleEl) titleEl.addEventListener('blur', repaginate);
+                            if (artistEl) artistEl.addEventListener('blur', repaginate);
+                        }, 0);
+                    } else {
+                        pageDiv.innerHTML = controlsHtml + content;
+                    }
+                } else {
+                    pageDiv.innerHTML = content;
+                }
                 
                 pageDiv.addEventListener('blur', repaginate);
                 container.appendChild(pageDiv);
             });
+        }
+
+        function removeSong(songIndex) {
+            songs.splice(songIndex, 1);
+            
+            // Se não sobrar nenhuma música, limpa a sidebar para evitar lixo de texto
+            if (songs.length === 0) {
+                document.getElementById('pdf-title').value = '';
+                document.getElementById('pdf-artist').value = '';
+            } else {
+                // Sincroniza a sidebar com o novo primeiro elemento da lista
+                document.getElementById('pdf-title').value = songs[0].title;
+                document.getElementById('pdf-artist').value = songs[0].artist;
+            }
+            
+            renderAllSongs();
+            showMessage('Música removida com sucesso!');
+        }
+
+        function moveSongUp(songIndex) {
+            if (songIndex <= 0 || songIndex >= songs.length) return;
+            const temp = songs[songIndex];
+            songs[songIndex] = songs[songIndex - 1];
+            songs[songIndex - 1] = temp;
+            
+            // Sincroniza a sidebar com o novo primeiro elemento da lista
+            document.getElementById('pdf-title').value = songs[0].title;
+            document.getElementById('pdf-artist').value = songs[0].artist;
+            
+            renderAllSongs();
+            showMessage('Ordem das músicas alterada!');
+        }
+
+        function moveSongDown(songIndex) {
+            if (songIndex < 0 || songIndex >= songs.length - 1) return;
+            const temp = songs[songIndex];
+            songs[songIndex] = songs[songIndex + 1];
+            songs[songIndex + 1] = temp;
+            
+            // Sincroniza a sidebar com o novo primeiro elemento da lista
+            document.getElementById('pdf-title').value = songs[0].title;
+            document.getElementById('pdf-artist').value = songs[0].artist;
+            
+            renderAllSongs();
+            showMessage('Ordem das músicas alterada!');
         }
 
         function transpose(semitones) {
@@ -471,6 +796,7 @@
                 chordNode.textContent = transposeChordString(originalText, semitones);
             });
 
+            repaginate();
             showMessage(`Cifra transposta com sucesso!`);
         }
 
@@ -496,7 +822,11 @@
         function exportToPDF() {
             const container = document.getElementById('paper-sheet');
             const pages = container.querySelectorAll('.a4-page');
-            const title = document.getElementById('pdf-title').value || 'Cifra_Formatada';
+            
+            const title = document.getElementById('pdf-title').value.trim() || 'Cifra';
+            const artist = document.getElementById('pdf-artist') ? document.getElementById('pdf-artist').value.trim() : '';
+            const filenameBase = artist ? `${artist} - ${title}` : title;
+            const filename = `${filenameBase.replace(/[^a-z0-9\s-]/gi, '').replace(/\s+/g, '_').toLowerCase()}.pdf`;
             
             if (pages.length === 0) {
                 showMessage('O editor está vazio. Extraia uma cifra primeiro.', true);
@@ -517,7 +847,7 @@
 
             const opt = {
                 margin:       0,
-                filename:     `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`,
+                filename:     filename,
                 image:        { type: 'jpeg', quality: 1.0 },
                 html2canvas:  { 
                     scale: 3,
@@ -546,8 +876,178 @@
                 });
         }
 
+        function startPresentation() {
+            const container = document.getElementById('paper-sheet');
+            const pages = container.querySelectorAll('.a4-page');
+            
+            if (pages.length === 0) {
+                showMessage('O editor está vazio. Extraia uma cifra primeiro.', true);
+                return;
+            }
+
+            isPresentationActive = true;
+            currentPresentationPageIndex = 0;
+
+            const overlay = document.getElementById('presentation-overlay');
+            overlay.classList.remove('hidden');
+
+            // Solicita tela cheia se suportado
+            if (overlay.requestFullscreen) {
+                overlay.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+            } else if (overlay.webkitRequestFullscreen) { /* Safari */
+                overlay.webkitRequestFullscreen().catch(err => console.log('Safari Fullscreen error:', err));
+            }
+
+            updatePresentationPage();
+        }
+
+        function stopPresentation() {
+            isPresentationActive = false;
+            const overlay = document.getElementById('presentation-overlay');
+            overlay.classList.add('hidden');
+
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(err => console.log('Exit fullscreen error:', err));
+            }
+        }
+
+        function prevPage() {
+            if (currentPresentationPageIndex > 0) {
+                currentPresentationPageIndex--;
+                updatePresentationPage();
+            }
+        }
+
+        function nextPage() {
+            const container = document.getElementById('paper-sheet');
+            const pages = container.querySelectorAll('.a4-page');
+            if (currentPresentationPageIndex < pages.length - 1) {
+                currentPresentationPageIndex++;
+                updatePresentationPage();
+            }
+        }
+
+        function updatePresentationPage() {
+            const container = document.getElementById('paper-sheet');
+            const pages = container.querySelectorAll('.a4-page');
+            if (pages.length === 0) return;
+
+            // Garante que o índice atual é válido
+            if (currentPresentationPageIndex >= pages.length) {
+                currentPresentationPageIndex = pages.length - 1;
+            }
+            if (currentPresentationPageIndex < 0) {
+                currentPresentationPageIndex = 0;
+            }
+
+            const activePageOriginal = pages[currentPresentationPageIndex];
+            const clonedPage = activePageOriginal.cloneNode(true);
+
+            // Remove interações e botões da cópia
+            clonedPage.contentEditable = "false";
+            clonedPage.removeAttribute("contenteditable");
+            clonedPage.style.margin = '0';
+            clonedPage.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+
+            // Remove botões de controle e outros elementos não imprimíveis da cópia
+            const noPrintElements = clonedPage.querySelectorAll('.no-print');
+            noPrintElements.forEach(el => el.remove());
+
+            // Calcula fator de escala dinâmico (mantendo a folha inteira na tela)
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            const maxW = viewportWidth - 140; // Margem para as setas laterais
+            const maxH = viewportHeight - 80;  // Margem superior e inferior
+
+            const scaleX = maxW / 794;
+            const scaleY = maxH / 1123;
+            const scale = Math.min(scaleX, scaleY);
+
+            clonedPage.style.transform = `scale(${scale})`;
+            clonedPage.style.transformOrigin = 'center center';
+
+            const contentWrapper = document.getElementById('presentation-content');
+            contentWrapper.innerHTML = '';
+            contentWrapper.appendChild(clonedPage);
+
+            // Atualiza indicador de página
+            const indicator = document.getElementById('presentation-indicator');
+            indicator.textContent = `Página ${currentPresentationPageIndex + 1} de ${pages.length}`;
+            
+            // Habilita/Desabilita as setas de acordo com a posição
+            const prevBtn = document.getElementById('pres-prev-btn');
+            const nextBtn = document.getElementById('pres-next-btn');
+            
+            if (currentPresentationPageIndex === 0) {
+                prevBtn.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                prevBtn.classList.remove('opacity-40', 'pointer-events-none');
+            }
+            
+            if (currentPresentationPageIndex === pages.length - 1) {
+                nextBtn.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                nextBtn.classList.remove('opacity-40', 'pointer-events-none');
+            }
+        }
+
+        // Listener para controle de navegação via teclado
+        window.addEventListener('keydown', (e) => {
+            if (!isPresentationActive) return;
+
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextPage();
+                e.preventDefault();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevPage();
+                e.preventDefault();
+            } else if (e.key === 'Escape') {
+                stopPresentation();
+                e.preventDefault();
+            }
+        });
+
+        // Listener para atualizar a escala se a janela mudar de tamanho
+        window.addEventListener('resize', () => {
+            if (isPresentationActive) {
+                updatePresentationPage();
+            }
+        });
+
+        // Listener para sair do modo de apresentação se o usuário fechar a tela cheia nativa
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && isPresentationActive) {
+                stopPresentation();
+            }
+        });
+
         // Redesenha os indicadores de página quando a janela mudar de tamanho
         window.addEventListener('resize', drawPageBreakIndicators);
     </script>
+
+    <!-- Apresentação Overlay -->
+    <div id="presentation-overlay" class="fixed inset-0 bg-slate-950 z-50 hidden flex items-center justify-center select-none overflow-hidden">
+        <!-- Botão Fechar -->
+        <button onclick="stopPresentation()" class="absolute top-4 right-4 bg-slate-800 hover:bg-slate-700 text-white rounded-full p-2.5 shadow-lg active:scale-95 transition-all border border-slate-700 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        
+        <!-- Seta Esquerda -->
+        <button id="pres-prev-btn" onclick="prevPage()" class="absolute left-6 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white rounded-full p-3 shadow-lg active:scale-95 transition-all border border-slate-700/60 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        
+        <!-- Seta Direita -->
+        <button id="pres-next-btn" onclick="nextPage()" class="absolute right-6 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white rounded-full p-3 shadow-lg active:scale-95 transition-all border border-slate-700/60 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        
+        <!-- Container Central -->
+        <div id="presentation-content" class="flex items-center justify-center w-full h-full"></div>
+        
+        <!-- Indicador de Página -->
+        <div id="presentation-indicator" class="absolute bottom-4 bg-slate-800/80 backdrop-blur px-4 py-1.5 rounded-full text-slate-300 text-xs font-semibold border border-slate-700/60"></div>
+    </div>
 </body>
 </html>
